@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Study Log API Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 720px;
+            margin: 40px auto;
+            padding: 0 16px;
+            line-height: 1.6;
+            background: #f5f5f5;
+        }
+
+        .card {
+            background: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            background: #2563eb;
+            color: #fff;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .result {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #eef2ff;
+            font-family: Menlo, Monaco, Consolas, monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>API 動作確認ページ</h1>
+    <p>
+        Apache → Spring Boot(API) → PostgreSQL の流れがちゃんと動いてるか確認する用のテストページです。<br />
+        <code>/api/hello?lang=ja</code> みたいなリクエストをボタンで実行できます。
+    </p>
+
+    <div class="card">
+        <form id="hello-form">
+            <label for="lang">言語コード（例: ja, en など）</label>
+            <input id="lang" name="lang" type="text" value="ja" />
+
+            <button type="submit">/api/hello を叩く</button>
+        </form>
+
+        <div id="result" class="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById("hello-form");
+        const resultDiv = document.getElementById("result");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const lang = document.getElementById("lang").value || "ja";
+
+            resultDiv.style.display = "block";
+            resultDiv.classList.remove("error");
+            resultDiv.textContent = "リクエスト送信中…";
+
+            try {
+                const res = await fetch(`/api/hello?lang=${encodeURIComponent(lang)}`);
+
+                const text = await res.text();
+                if (!res.ok) {
+                    resultDiv.classList.add("error");
+                    resultDiv.textContent = `エラー: HTTP ${res.status}\n${text}`;
+                    return;
+                }
+
+                resultDiv.textContent = `レスポンス:\n${text}`;
+            } catch (err) {
+                resultDiv.classList.add("error");
+                resultDiv.textContent = `通信エラー: ${err}`;
+            }
+        });
+    </script>
+</body>
+
+</html>
