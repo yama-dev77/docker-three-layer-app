@@ -1,8 +1,11 @@
-FROM ubuntu/apache2
+FROM httpd:2.4-alpine
 
-RUN a2enmod proxy proxy_http
+# Enable proxy modules
+RUN sed -i '/^#.*proxy_module/s/^#//' /usr/local/apache2/conf/httpd.conf \
+    && sed -i '/^#.*proxy_http_module/s/^#//' /usr/local/apache2/conf/httpd.conf
 
-COPY ./dist/ /var/www/html/
-COPY ./apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+# App assets and virtual host config
+COPY ./dist/ /usr/local/apache2/htdocs/
+COPY ./apache/000-default.conf /usr/local/apache2/conf.d/000-default.conf
 
-CMD ["apache2ctl", "-D", "FOREGROUND"]
+CMD ["httpd-foreground"]
