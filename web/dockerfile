@@ -4,6 +4,9 @@ FROM httpd:2.4-alpine
 RUN sed -i '/^#.*proxy_module/s/^#//' /usr/local/apache2/conf/httpd.conf \
     && sed -i '/^#.*proxy_http_module/s/^#//' /usr/local/apache2/conf/httpd.conf
 
+# Move listener to 8080 for non-privileged runtime
+RUN sed -i 's/^Listen 80$/Listen 8080/' /usr/local/apache2/conf/httpd.conf
+
 # App assets and virtual host config
 COPY ./dist/ /usr/local/apache2/htdocs/
 COPY ./apache/000-default.conf /usr/local/apache2/conf.d/000-default.conf
